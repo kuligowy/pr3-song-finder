@@ -1,8 +1,5 @@
 package pl.kuligowy.pr3sf.services;
 
-import org.apache.tomcat.jni.Local;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,14 +7,9 @@ import org.springframework.stereotype.Service;
 import pl.kuligowy.pr3sf.domain.SongEntry;
 import pl.kuligowy.pr3sf.utils.LaunderThrowable;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class YoutubeFinderService {
@@ -27,7 +19,8 @@ public class YoutubeFinderService {
     @Value("${queue.name}")
     private String queueName;
     @Autowired
-    private  RabbitTemplate rabbitTemplate;
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
     private YoutubeClientService youtubeService;
 
     private final int MAX_THREADS = 10;
@@ -35,16 +28,14 @@ public class YoutubeFinderService {
     private final CompletionService<SongEntry> completionService = new ExecutorCompletionService<>(executor);
 
 
-
-    public void find(List<SongEntry> songEntryList){
-        songEntryList.forEach(se->completionService.submit(createTask(se)));
+    public void searchConcurrently(List<SongEntry> songEntryList){
+        songEntryList.forEach(se->completionService.submit(createSearchTask(se)));
         try {
             for (int t = 0, n =  songEntryList.size(); t < n;  t++) {
                 Future<SongEntry> f = completionService.take();
                 SongEntry songEntry = f.get();
                 String msg = String.format("%s %s -> %s",songEntry.getArtist(),songEntry.getTitle(),songEntry.getLinks());
                 System.out.println(msg);
-                //TODO: send msg to rabbit
                 rabbitTemplate.convertAndSend(queueName,songEntry);
             }
         } catch (InterruptedException e) {
@@ -54,14 +45,10 @@ public class YoutubeFinderService {
         }
     }
 
-    private Callable<SongEntry> createTask(SongEntry se){
+    private Callable<SongEntry> createSearchTask(SongEntry se){
         return () -> {
             logger.info("Calling...");
-            //TODO ask youtube api for results
-            Thread.sleep(1500);
-            youtubeService.searchVideos(se);
-            logger.info("... end.");
-            return se;// new SongEntry(se.getArtist(),se.getTitle());
+            return youtubeService.searchVideos(se);
         };
     }
 

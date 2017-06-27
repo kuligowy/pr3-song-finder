@@ -36,7 +36,7 @@ public class RabbitmqConfig {
     private String password;
 
 
-@Bean
+    @Bean
     public ConnectionFactory connectionFactory(){
         CachingConnectionFactory ccf = new CachingConnectionFactory("localhost");
         ccf.setUsername("guest");
