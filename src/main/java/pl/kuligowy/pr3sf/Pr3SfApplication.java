@@ -4,11 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import pl.kuligowy.pr3sf.domain.Broadcast;
 import pl.kuligowy.pr3sf.domain.SongEntry;
+import pl.kuligowy.pr3sf.services.PR3Service;
 import pl.kuligowy.pr3sf.services.YoutubeFinderService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SpringBootApplication
@@ -16,7 +19,8 @@ public class Pr3SfApplication {
 
 	@Autowired
 	YoutubeFinderService service;
-
+	@Autowired
+	PR3Service pr3Service;
 	public static void main(String[] args) {
 		ConfigurableApplicationContext ctx = SpringApplication.run(Pr3SfApplication.class, args);
 
@@ -46,6 +50,8 @@ public class Pr3SfApplication {
 //		List<SongEntry> list = IntStream.range(1,50)
 //				.mapToObj((i)-> new SongEntry("Artist "+i, "Song "+i))
 //				.collect(Collectors.toList());
-		service.searchConcurrently(list);
+		List<Broadcast> broadcasts = pr3Service.getSongs(Optional.empty());
+		broadcasts.stream().forEach(b -> System.out.println(b.getTitle()+" "+b.getSongEntries().size()));
+//		service.searchConcurrently(list);
 	}
 }
