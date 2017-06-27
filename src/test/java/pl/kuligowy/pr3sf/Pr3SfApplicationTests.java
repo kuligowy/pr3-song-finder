@@ -1,4 +1,4 @@
-package pl.kuligowy.pr3sf.pr3sf;
+package pl.kuligowy.pr3sf;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
