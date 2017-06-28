@@ -1,0 +1,24 @@
+package pl.kuligowy.pr3sf;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpConnectException;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@Component
+public class MyExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(MyExceptionHandler.class);
+
+    @ExceptionHandler({AmqpConnectException.class})
+    protected void handleAMQPException(AmqpConnectException ex){
+        logger.info("Exception: "+ex.getMessage());
+    }
+
+    protected void handleExpcetion(){
+
+    }
+
+}

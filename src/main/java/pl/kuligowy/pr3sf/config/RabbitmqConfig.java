@@ -12,6 +12,7 @@ import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ErrorHandler;
 
 
 @Configuration
@@ -35,7 +36,7 @@ public class RabbitmqConfig {
     private String password;
 
 
-    @Bean
+//    @Bean
     public ConnectionFactory connectionFactory(){
         CachingConnectionFactory ccf = new CachingConnectionFactory("localhost");
         ccf.setUsername("guest");
@@ -45,13 +46,13 @@ public class RabbitmqConfig {
         return ccf;
     }
 
-    @Bean
-    public AmqpAdmin amqpAdmin() {
+//    @Bean
+    public RabbitAdmin amqpAdmin() {
         logger.info("Creating amqpAdmin...");
         return new RabbitAdmin(connectionFactory());
     }
 
-    @Bean
+//    @Bean
     Queue queue() {
         return new Queue(queueName, true);
     }
@@ -71,4 +72,14 @@ public class RabbitmqConfig {
         return new RabbitTemplate(connectionFactory());
     }
 
+
+    @Bean
+    public SimpleMessageListenerContainer container(){
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setQueues(queue());
+        container.setRabbitAdmin(amqpAdmin());
+        container.setConnectionFactory(connectionFactory());
+        container.setErrorHandler(t-> logger.info("Handling error..."+t.getMessage()));
+        return container;
+    }
 }

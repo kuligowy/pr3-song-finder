@@ -1,5 +1,6 @@
 package pl.kuligowy.pr3sf.services;
 
+import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +29,9 @@ public class YoutubeFinderService {
     private final CompletionService<SongEntry> completionService = new ExecutorCompletionService<>(executor);
 
 
-    public void searchConcurrently(List<SongEntry> songEntryList){
+    
+
+    public String searchConcurrently(List<SongEntry> songEntryList){
         songEntryList.forEach(se->completionService.submit(createSearchTask(se)));
         try {
             for (int t = 0, n =  songEntryList.size(); t < n;  t++) {
@@ -36,19 +39,26 @@ public class YoutubeFinderService {
                 SongEntry songEntry = f.get();
                 String msg = String.format("%s %s -> %s",songEntry.getArtist(),songEntry.getTitle(),songEntry.getLinks());
                 System.out.println(msg);
-                rabbitTemplate.convertAndSend(queueName,songEntry);
+                try {
+                    rabbitTemplate.convertAndSend(queueName, songEntry);
+                }catch(AmqpConnectException ex){
+                    logger.info("Rabbit is down, cant send information. Skipping sending info");
+                }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
             throw LaunderThrowable.launderThrowable(e);
         }
+        return "search started";
     }
 
     private Callable<SongEntry> createSearchTask(SongEntry se){
         return () -> {
-            logger.info("Calling...");
-            return youtubeService.searchVideos(se);
+            logger.info("Searching for videos..."+se.getTitle());
+            Thread.sleep(500);
+            return se;
+            //return youtubeService.searchVideos(se);
         };
     }
 
