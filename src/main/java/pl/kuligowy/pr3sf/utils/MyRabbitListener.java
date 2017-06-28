@@ -1,4 +1,4 @@
-package pl.kuligowy.pr3sf.services;
+package pl.kuligowy.pr3sf.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

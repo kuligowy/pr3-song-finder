@@ -1,25 +1,34 @@
 package pl.kuligowy.pr3sf.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.Builder;
 import lombok.Data;
+import org.hibernate.annotations.*;
 import pl.kuligowy.pr3sf.utils.CustomJsonLocalDateTimeDeserializer;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name="broadcast")
-public class Broadcast {
+//uniqueConstraints = {    @UniqueConstraint(columnNames = "dummy_id", name = "dummyIdUnique")})
+//@IdClass(BroadcastKey.class)
+public class Broadcast implements Serializable{
 
+    @GeneratedValue
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
-    private Long id;
+    private Long dummyId;
     @JsonProperty("Title")
     @Column(name="title")
     private  String title;
@@ -34,8 +43,14 @@ public class Broadcast {
     @Column(name="stop")
     private  LocalDateTime stop;
     @JsonProperty("Songs")
+    @JsonManagedReference
     @OneToMany(mappedBy = "broadcast",cascade = CascadeType.PERSIST)
     private  List<SongEntry> songEntries;
+    @Column(name = "last_update")
+    @UpdateTimestamp
+    private Date lastUpdated;
+    @CreationTimestamp
+    private Date inserted;
 
     public Broadcast(){
 

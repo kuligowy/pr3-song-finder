@@ -1,11 +1,10 @@
 package pl.kuligowy.pr3sf.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 import pl.kuligowy.pr3sf.utils.CustomJsonLocalDateTimeDeserializer;
 
 import javax.persistence.*;
@@ -16,6 +15,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name="song_entry")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id")
 public class SongEntry implements Serializable{
 
     @Id
@@ -41,23 +41,30 @@ public class SongEntry implements Serializable{
     private String artist;
     @JoinColumn(name = "broadcast",referencedColumnName = "id")
     @ManyToOne
-    @JsonIgnore
+    @JsonBackReference
     private Broadcast broadcast;
-    @Transient
-    private List<String> links;
+    @OneToMany(cascade = {CascadeType.ALL},orphanRemoval = true)//,mappedBy = "songEntryId")
+    @JoinColumn(name = "song_entry_id", referencedColumnName= "id")
+    private List<YoutubeResult> links;
 
     public SongEntry() {
 
     }
 
-    public SongEntry(String artist, String title, List<String> links) {
+    public SongEntry(String artist, String title, List<YoutubeResult> links) {
         this.title = title;
         this.artist = artist;
         this.links = links;
+        //this.links.stream().forEach(yt -> yt.setSongEntryId(this));
     }
 
     public SongEntry(String artist, String title){
         this.title = title;
         this.artist = artist;
+    }
+
+    @Override
+    public String toString(){
+        return "SongEntry"+id;
     }
 }

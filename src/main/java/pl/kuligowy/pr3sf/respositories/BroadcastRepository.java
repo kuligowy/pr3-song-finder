@@ -6,4 +6,6 @@ import pl.kuligowy.pr3sf.domain.Broadcast;
 
 public interface BroadcastRepository extends JpaRepository<Broadcast,Long>,JpaSpecificationExecutor {
 
+
+
 }

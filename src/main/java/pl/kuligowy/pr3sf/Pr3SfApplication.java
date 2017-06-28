@@ -1,23 +1,11 @@
 package pl.kuligowy.pr3sf;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import pl.kuligowy.pr3sf.domain.Broadcast;
-import pl.kuligowy.pr3sf.domain.SongEntry;
-import pl.kuligowy.pr3sf.services.PR3Service;
-import pl.kuligowy.pr3sf.services.YoutubeFinderService;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 @ComponentScan

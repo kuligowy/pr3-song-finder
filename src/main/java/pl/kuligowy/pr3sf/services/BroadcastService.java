@@ -2,34 +2,26 @@ package pl.kuligowy.pr3sf.services;
 
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
-import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pl.kuligowy.pr3sf.domain.Broadcast;
+import pl.kuligowy.pr3sf.domain.DailyBroadcastCollection;
 import pl.kuligowy.pr3sf.domain.SongEntry;
 import pl.kuligowy.pr3sf.respositories.BroadcastRepository;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.xml.ws.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PR3Service {
+public class BroadcastService {
     Logger logger = Logger.getLogger(this.getClass().getName());
 
     private BroadcastRepository broadcastRepository;
@@ -37,7 +29,7 @@ public class PR3Service {
     private final RestTemplate rest = new RestTemplate();
 
     @Autowired
-    public PR3Service(
+    public BroadcastService(
             BroadcastRepository broadcastRepository, @Value("${pr3.rest.api.url}") String URL ) {
         this.broadcastRepository = broadcastRepository;
         this.URL = URL;

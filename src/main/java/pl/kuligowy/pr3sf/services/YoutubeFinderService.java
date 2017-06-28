@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.kuligowy.pr3sf.domain.SongEntry;
+import pl.kuligowy.pr3sf.respositories.SongEntryRepository;
 import pl.kuligowy.pr3sf.utils.LaunderThrowable;
 
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -25,6 +27,31 @@ public class YoutubeFinderService {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private YoutubeClientService youtubeService;
+    @Autowired
+    private SongEntryRepository songEntryRepository;
+
+    public String search(List<SongEntry> songEntryList){
+        for(SongEntry se : songEntryList){
+//            try {
+                youtubeService.searchVideos(se).thenAccept((s)->{
+                    String msg = String.format("%d=%s %s -> %s",s.getId(),s.getArtist(),s.getTitle(),s.getLinks());
+                    logger.info("Entry: "+msg);
+                        logger.info("TITLE WITH DUPA: "+s.getTitle());
+                        songEntryRepository.save(s);
+                        rabbitTemplate.convertAndSend(queueName, s);
+    //                }catch(AmqpConnectException ex){
+    //                    logger.info("Rabbit is down, cant send information. Skipping sending info for "+msg);
+    //                }
+                });
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            } catch (ExecutionException e) {
+//                e.printStackTrace();
+//            }
+        }
+        return "search started";
+    }
+
 
 //    private final int MAX_THREADS = 10;
 //    private final ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
@@ -55,18 +82,7 @@ public class YoutubeFinderService {
 
 
 
-    public String search(List<SongEntry> songEntryList){
-        for(SongEntry se : songEntryList)
-            youtubeService.createFutureTask(se).thenAccept((s)->{
-                String msg = String.format("%s %s -> %s",s.getArtist(),s.getTitle(),s.getLinks());
-                try {
-                    rabbitTemplate.convertAndSend(queueName, s);
-                }catch(AmqpConnectException ex){
-                    logger.info("Rabbit is down, cant send information. Skipping sending info");
-                }
-            });
-        return "search started";
-    }
+
 
 
 

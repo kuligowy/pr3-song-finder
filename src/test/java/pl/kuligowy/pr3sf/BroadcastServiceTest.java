@@ -1,6 +1,5 @@
 package pl.kuligowy.pr3sf;
 
-import org.apache.tomcat.jni.Local;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,12 +9,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import pl.kuligowy.pr3sf.domain.Broadcast;
 import pl.kuligowy.pr3sf.respositories.BroadcastRepository;
-import pl.kuligowy.pr3sf.services.PR3Service;
+import pl.kuligowy.pr3sf.services.BroadcastService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +24,7 @@ import static org.mockito.BDDMockito.given;
 public class BroadcastServiceTest {
 
     @Autowired
-    PR3Service service;
+    BroadcastService service;
     @MockBean
     BroadcastRepository repository;
 
