@@ -2,8 +2,6 @@ package pl.kuligowy.pr3sf.services;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
@@ -14,13 +12,16 @@ import com.google.api.services.youtube.model.Thumbnail;
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.kuligowy.pr3sf.domain.SongEntry;
+import pl.kuligowy.pr3sf.domain.YoutubeResult;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class YoutubeClientService {
@@ -40,35 +41,21 @@ public class YoutubeClientService {
                 .setApplicationName("pr3-song-finder").build();
     }
 
-    public SongEntry searchVideos(SongEntry songEntry){
+    @Async
+    public CompletableFuture<SongEntry> searchVideos(SongEntry songEntry){
         logger.info(String.format("Searching for: %s - %s",songEntry.getArtist(),songEntry.getTitle()));
         try {
-            // Prompt the user to enter a query term.
             String queryTerm = songEntry.getArtist()+" "+songEntry.getTitle();
-
-            // Define the API request for retrieving search results.
             YouTube.Search.List search = youtube.search().list("id,snippet");
-
-            // Set your developer key from the {{ Google Cloud Console }} for
-            // non-authenticated requests. See:
-            // {{ https://cloud.google.com/console }}
             search.setKey(API_KEY);
             search.setQ(queryTerm);
-            // Restrict the search results to only include videos. See:
-            // https://developers.google.com/youtube/v3/docs/search/list#type
             search.setType("video");
-            // To increase efficiency, only retrieve the fields that the
-            // application uses.
             search.setFields("items(id,id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
             search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
-
-            // Call the API and print results.
             SearchListResponse searchResponse = search.execute();
             List<SearchResult> searchResultList = searchResponse.getItems();
-//            if (searchResultList != null) {
-//                prettyPrint(searchResultList.iterator(), queryTerm);
-//            }
-            return createLink(searchResultList.iterator(),songEntry);
+            List<YoutubeResult> links = createLinks(searchResultList.iterator());
+            songEntry.setLinks(links);
         } catch (GoogleJsonResponseException e) {
             System.err.println("There was a service error: " + e.getDetails().getCode() + " : "
                     + e.getDetails().getMessage());
@@ -77,25 +64,26 @@ public class YoutubeClientService {
         } catch (Throwable t) {
             t.printStackTrace();
         }
-        return songEntry;
+        return CompletableFuture.completedFuture(songEntry);
     }
 
-    private SongEntry createLink(Iterator<SearchResult> iteratorSearchResults,SongEntry se){
-        List<String> links = Lists.newArrayList();
+    private List<YoutubeResult> createLinks(Iterator<SearchResult> iteratorSearchResults){
+        List<YoutubeResult> links = Lists.newArrayList();
         while (iteratorSearchResults.hasNext()) {
-
             SearchResult singleVideo = iteratorSearchResults.next();
             String id = singleVideo.getId().getVideoId();
-            links.add(String.format("http://youtube.com/watch?v=%s",id));
+            YoutubeResult result = new YoutubeResult(id);
+            links.add(result);
         }
-        return new SongEntry(se.getArtist(),se.getTitle(),links);
+        return links;
+        //return new SongEntry(se.getArtist(),se.getTitle(),links);
     }
 
     private void prettyPrint(Iterator<SearchResult> iteratorSearchResults, String query) {
 
         System.out.println("\n=============================================================");
         System.out.println(
-                "   First " + NUMBER_OF_VIDEOS_RETURNED + " videos for search on \"" + query + "\".");
+                "   First " + NUMBER_OF_VIDEOS_RETURNED + " videos for downloadListForDay on \"" + query + "\".");
         System.out.println("=============================================================\n");
 
         if (!iteratorSearchResults.hasNext()) {
