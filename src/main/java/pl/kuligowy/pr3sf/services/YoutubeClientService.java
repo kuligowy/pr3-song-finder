@@ -14,6 +14,7 @@ import com.google.api.services.youtube.model.Thumbnail;
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.kuligowy.pr3sf.domain.SongEntry;
 
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class YoutubeClientService {
@@ -38,6 +40,16 @@ public class YoutubeClientService {
         JacksonFactory jacksonFactory = new com.google.api.client.json.jackson2.JacksonFactory();
         youtube = new YouTube.Builder(transport, jacksonFactory, request -> {})
                 .setApplicationName("pr3-song-finder").build();
+    }
+
+    @Async
+    public CompletableFuture<SongEntry> createFutureTask(SongEntry se){
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return CompletableFuture.completedFuture(se);
     }
 
     public SongEntry searchVideos(SongEntry songEntry){

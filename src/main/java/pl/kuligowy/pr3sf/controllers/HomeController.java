@@ -33,7 +33,7 @@ public class HomeController {
                                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
         List<Broadcast> list = pr3Service.getSongs(Optional.ofNullable(day));
         List<SongEntry> songs = list.stream().map(broadcast -> broadcast.getSongEntries()).flatMap(broadcast -> broadcast.stream()).collect(Collectors.toList());
-        String result = service.searchConcurrently(songs);
+        String result = service.search(songs);
         ResponseEntity responseEntity = new ResponseEntity(result, HttpStatus.OK);
         return responseEntity;
     }
