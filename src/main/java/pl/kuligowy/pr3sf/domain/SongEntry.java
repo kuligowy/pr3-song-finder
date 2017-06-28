@@ -42,7 +42,7 @@ public class SongEntry implements Serializable{
     @JsonBackReference
     private Broadcast broadcast;
     @OneToMany(cascade = {CascadeType.ALL},orphanRemoval = true)//,mappedBy = "songEntryId")
-    @JoinColumn(name = "song_entry_id")
+    @JoinColumn(name = "song_entry_id", referencedColumnName = "BroadcastKey")
     private List<YoutubeResult> links;
 
     public SongEntry() {
