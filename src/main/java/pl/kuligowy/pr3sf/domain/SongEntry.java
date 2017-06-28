@@ -1,16 +1,14 @@
 package pl.kuligowy.pr3sf.domain;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
-import pl.kuligowy.pr3sf.utils.CustomJsonLocalDateTimeDeserializer;
+import com.fasterxml.jackson.databind.annotation.*;
+import lombok.*;
+import pl.kuligowy.pr3sf.utils.*;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.io.*;
+import java.time.*;
+import java.util.*;
 
 @Data
 @Entity
@@ -44,7 +42,7 @@ public class SongEntry implements Serializable{
     @JsonBackReference
     private Broadcast broadcast;
     @OneToMany(cascade = {CascadeType.ALL},orphanRemoval = true)//,mappedBy = "songEntryId")
-    @JoinColumn(name = "song_entry_id", referencedColumnName= "id")
+    @JoinColumn(name = "song_entry_id")
     private List<YoutubeResult> links;
 
     public SongEntry() {

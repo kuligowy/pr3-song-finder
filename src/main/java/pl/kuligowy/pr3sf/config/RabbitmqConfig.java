@@ -1,18 +1,11 @@
 package pl.kuligowy.pr3sf.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.util.ErrorHandler;
+import org.springframework.amqp.rabbit.connection.*;
+import org.springframework.amqp.rabbit.core.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.*;
 
 
 @Configuration
@@ -73,13 +66,13 @@ public class RabbitmqConfig {
     }
 
 
-    @Bean
-    public SimpleMessageListenerContainer container(){
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setQueues(queue());
-        container.setRabbitAdmin(amqpAdmin());
-        container.setConnectionFactory(connectionFactory());
-        container.setErrorHandler(t-> logger.info("Handling error..."+t.getMessage()));
-        return container;
-    }
+//    @Bean
+//    public SimpleMessageListenerContainer container(){
+//        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+//        container.setQueues(queue());
+//        container.setRabbitAdmin(amqpAdmin());
+//        container.setConnectionFactory(connectionFactory());
+//        container.setErrorHandler(t-> logger.info("Handling error..."+t.getMessage()));
+//        return container;
+//    }
 }

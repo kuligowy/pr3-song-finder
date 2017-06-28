@@ -1,42 +1,40 @@
 package pl.kuligowy.pr3sf.domain;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.databind.annotation.*;
+import lombok.*;
 import org.hibernate.annotations.*;
-import pl.kuligowy.pr3sf.utils.CustomJsonLocalDateTimeDeserializer;
+import pl.kuligowy.pr3sf.utils.*;
 
-import javax.persistence.*;
 import javax.persistence.CascadeType;
+import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.io.*;
+import java.time.*;
+import java.util.*;
 
 @Data
 @Entity
 @Table(name="broadcast")
 //uniqueConstraints = {    @UniqueConstraint(columnNames = "dummy_id", name = "dummyIdUnique")})
-//@IdClass(BroadcastKey.class)
+@IdClass(BroadcastKey.class)
 public class Broadcast implements Serializable{
 
-    @GeneratedValue
-    @Id
-    @Column(name="id")
-    private Long dummyId;
+//    @GeneratedValue
+//    @Column(name="id")
+//    private Long dummyId;
     @JsonProperty("Title")
     @Column(name="title")
+    @Id
     private  String title;
+    @Id
     @JsonProperty("Start")
     @JsonFormat(pattern = "E, d MMM yyyy HH:mm:ss")
     @JsonDeserialize(using = CustomJsonLocalDateTimeDeserializer.class)
     @Column(name="start")
     private  LocalDateTime start;
+    @Id
     @JsonProperty("Stop")
     @JsonFormat(pattern = "E, d MMM yyyy HH:mm:ss")
     @JsonDeserialize(using = CustomJsonLocalDateTimeDeserializer.class)
