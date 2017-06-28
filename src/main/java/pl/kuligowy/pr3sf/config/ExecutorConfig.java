@@ -1,10 +1,9 @@
 package pl.kuligowy.pr3sf.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.context.annotation.*;
+import org.springframework.scheduling.concurrent.*;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.*;
 
 @Configuration
 public class ExecutorConfig {
@@ -19,4 +18,6 @@ public class ExecutorConfig {
         executor.initialize();
         return executor;
     }
+
+
 }

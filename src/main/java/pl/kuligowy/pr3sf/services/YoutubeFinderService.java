@@ -1,21 +1,13 @@
 package pl.kuligowy.pr3sf.services;
 
-import org.springframework.amqp.AmqpConnectException;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import pl.kuligowy.pr3sf.domain.SongEntry;
-import pl.kuligowy.pr3sf.respositories.SongEntryRepository;
-import pl.kuligowy.pr3sf.utils.LaunderThrowable;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+import pl.kuligowy.pr3sf.domain.*;
+import pl.kuligowy.pr3sf.respositories.*;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 @Service
 public class YoutubeFinderService {

@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.*;
 
 @SpringBootApplication
 @ComponentScan
@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 		basePackageClasses = { Pr3SfApplication.class, Jsr310JpaConverters.class }
 )
 @EnableAsync
+@EnableScheduling
 public class Pr3SfApplication {
 
 	public static void main(String[] args) {
