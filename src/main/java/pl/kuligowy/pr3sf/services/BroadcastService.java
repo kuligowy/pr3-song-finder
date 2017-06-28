@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pl.kuligowy.pr3sf.domain.Broadcast;
-import pl.kuligowy.pr3sf.domain.DailyBroadcastCollection;
 import pl.kuligowy.pr3sf.domain.SongEntry;
 import pl.kuligowy.pr3sf.respositories.BroadcastRepository;
 
@@ -35,29 +34,22 @@ public class BroadcastService {
         this.URL = URL;
     }
 
-    public List<Broadcast> getSongs(Optional<LocalDate> date){
+    public List<Broadcast> getFromRepository(Optional<LocalDate> date){
+        logger.info("Using DATABASE");
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
         LocalDateTime dateX = LocalDateTime.of(day, LocalTime.MIN);
         LocalDateTime dateY = LocalDateTime.of(day, LocalTime.MAX);
-        long count = broadcastRepository.count((root, query, cb) -> cb.between(root.get("start"),dateX,dateY));
-        logger.info("Count: "+count);
-        if(count>0){
-            logger.info("Using DATABASE");
-            return broadcastRepository.findAll();
-        }
+        return broadcastRepository.findAll((root, query, cb) -> cb.between(root.get("start"),dateX,dateY));
+    }
+
+    public List<Broadcast> getFromSource(Optional<LocalDate> date){
+        LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String dayString = day.format(dtf);
         logger.info("Using REST API");
         ResponseEntity<Broadcast[]> response = rest.getForEntity(URL, Broadcast[].class,dayString);
         List<Broadcast> result = Arrays.asList(response.getBody());
         return broadcastRepository.save(result);
-
     }
-    public List<SongEntry> getSongsFromBroadcast(String broadcast){
-//        ResponseEntity<Broadcast[]> response = rest.getForEntity(URL, Broadcast[].class,"2017-06-23");
-//        logger.info(String.format("Body: %s",response.getBody()));
-//        logger.info(String.format("Body: %s",response.getBody().getClass()));
-        return Lists.newArrayList();
 
-    }
 }

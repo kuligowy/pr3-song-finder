@@ -14,7 +14,7 @@ public class MyRabbitListener {
      private static final Logger logger = LoggerFactory.getLogger(RabbitListener.class);
 
 
-    @RabbitListener(queues = "${queue.name}")
+//    @RabbitListener(queues = "${queue.name}")
     public void processMessage(@Payload SongEntry data){
         logger.info(String.format("Object %s", data));
 

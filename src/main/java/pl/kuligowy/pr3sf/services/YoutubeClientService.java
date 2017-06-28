@@ -83,7 +83,7 @@ public class YoutubeClientService {
 
         System.out.println("\n=============================================================");
         System.out.println(
-                "   First " + NUMBER_OF_VIDEOS_RETURNED + " videos for search on \"" + query + "\".");
+                "   First " + NUMBER_OF_VIDEOS_RETURNED + " videos for downloadListForDay on \"" + query + "\".");
         System.out.println("=============================================================\n");
 
         if (!iteratorSearchResults.hasNext()) {

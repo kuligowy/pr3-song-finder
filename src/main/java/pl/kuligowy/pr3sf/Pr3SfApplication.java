@@ -40,7 +40,7 @@ public class Pr3SfApplication {
 ////		List<SongEntry> list = IntStream.range(1,50)
 ////				.mapToObj((i)-> new SongEntry("Artist "+i, "Song "+i))
 ////				.collect(Collectors.toList());
-//		List<Broadcast> broadcasts = pr3Service.getSongs(Optional.empty());
+//		List<Broadcast> broadcasts = pr3Service.getFromSource(Optional.empty());
 //		broadcasts.stream().forEach(b -> System.out.println(b.getTitle()+" "+b.getSongEntries().size()));
 ////		service.searchConcurrently(list);
 	}

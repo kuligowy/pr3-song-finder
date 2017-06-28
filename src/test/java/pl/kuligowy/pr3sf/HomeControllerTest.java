@@ -37,21 +37,21 @@ public class HomeControllerTest {
 
     @Test
     public void testSearchNoDate() throws Exception {
-        BDDMockito.given(service.getSongs(Optional.empty())).willReturn(Lists.newArrayList());
-        mvc.perform(get("/api/search")).andExpect(status().isOk());
+        BDDMockito.given(service.getFromSource(Optional.empty())).willReturn(Lists.newArrayList());
+        mvc.perform(get("/api/downloadListForDay")).andExpect(status().isOk());
     }
 
     @Test
     public void testSearchToday() throws Exception {
 
-        BDDMockito.given(service.getSongs(Optional.of(LocalDate.now()))).willReturn(Lists.newArrayList());
-        mvc.perform(get("/api/search?day={day}", LocalDate.now())).andExpect(status().isOk());
+        BDDMockito.given(service.getFromSource(Optional.of(LocalDate.now()))).willReturn(Lists.newArrayList());
+        mvc.perform(get("/api/downloadListForDay?day={day}", LocalDate.now())).andExpect(status().isOk());
     }
 
     @Test
     public void testSearchYesterday() throws Exception {
-        BDDMockito.given(service.getSongs(Optional.of(LocalDate.now().minusDays(1)))).willReturn(Lists.newArrayList());
-        mvc.perform(get("/api/search?day={day}", LocalDate.now().minusDays(1)))
+        BDDMockito.given(service.getFromSource(Optional.of(LocalDate.now().minusDays(1)))).willReturn(Lists.newArrayList());
+        mvc.perform(get("/api/downloadListForDay?day={day}", LocalDate.now().minusDays(1)))
                 .andExpect(status().isOk());
     }
 }

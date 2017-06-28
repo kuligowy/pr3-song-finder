@@ -13,6 +13,7 @@ import pl.kuligowy.pr3sf.utils.LaunderThrowable;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -21,35 +22,34 @@ public class YoutubeFinderService {
 
     Logger logger = Logger.getLogger(this.getClass().getName());
 
-    @Value("${queue.name}")
-    private String queueName;
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-    @Autowired
     private YoutubeClientService youtubeService;
-    @Autowired
     private SongEntryRepository songEntryRepository;
+    private RabbitService rabbitService;
+
+    @Autowired
+    YoutubeFinderService(YoutubeClientService youtubeClientService,SongEntryRepository repository,RabbitService rabbit){
+        this.youtubeService = youtubeClientService;
+        this.songEntryRepository = repository;
+        this.rabbitService = rabbit;
+    }
+
+    public String search(SongEntry songEntry){
+        CompletableFuture<SongEntry> ret = youtubeService.searchVideos(songEntry);
+        ret.thenAccept(se->{
+            String msg = String.format("%d=%s %s -> %s",se.getId(),se.getArtist(),
+                    se.getTitle(),se.getLinks());
+            songEntryRepository.save(se);
+            rabbitService.sendMessage(se);
+        }).exceptionally(t->{
+            logger.warning("EXCEPTION "+t.getMessage());
+            return null;
+        });
+        return "started";
+    }
 
     public String search(List<SongEntry> songEntryList){
-        for(SongEntry se : songEntryList){
-//            try {
-                youtubeService.searchVideos(se).thenAccept((s)->{
-                    String msg = String.format("%d=%s %s -> %s",s.getId(),s.getArtist(),s.getTitle(),s.getLinks());
-                    logger.info("Entry: "+msg);
-                        logger.info("TITLE WITH DUPA: "+s.getTitle());
-                        songEntryRepository.save(s);
-                        rabbitTemplate.convertAndSend(queueName, s);
-    //                }catch(AmqpConnectException ex){
-    //                    logger.info("Rabbit is down, cant send information. Skipping sending info for "+msg);
-    //                }
-                });
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            } catch (ExecutionException e) {
-//                e.printStackTrace();
-//            }
-        }
-        return "search started";
+        songEntryList.parallelStream().forEach(this::search);
+        return "started";
     }
 
 
@@ -77,7 +77,7 @@ public class YoutubeFinderService {
 //        } catch (ExecutionException e) {
 //            throw LaunderThrowable.launderThrowable(e);
 //        }
-//        return "search started";
+//        return "downloadListForDay started";
 //    }
 
 

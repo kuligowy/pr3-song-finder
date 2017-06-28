@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.kuligowy.pr3sf.domain.Broadcast;
 import pl.kuligowy.pr3sf.domain.SongEntry;
+import pl.kuligowy.pr3sf.domain.StateMarker;
 import pl.kuligowy.pr3sf.services.BroadcastService;
+import pl.kuligowy.pr3sf.services.RabbitService;
 import pl.kuligowy.pr3sf.services.YoutubeFinderService;
 
 import java.time.LocalDate;
@@ -26,14 +29,27 @@ public class HomeController {
     YoutubeFinderService service;
     @Autowired
     BroadcastService broadcastService;
+    @Autowired
+    RabbitService rabbitService;
 
-    @RequestMapping("/search")
-    public ResponseEntity<?> search(@RequestParam(value = "day",required = false)
+
+    @GetMapping("/show")
+    public ResponseEntity<?> showListForDay(@RequestParam(value = "day",required = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
+        List<Broadcast> list = broadcastService.getFromRepository(Optional.ofNullable(day));
+        List<SongEntry> songs = list.stream().map(broadcast -> broadcast.getSongEntries()).flatMap(se -> se.stream()).collect(Collectors.toList());
+        songs.stream().parallel().forEach(rabbitService::sendMessage);
+        ResponseEntity responseEntity = new ResponseEntity(StateMarker.STARTED, HttpStatus.OK);
+        return responseEntity;
+    }
+
+    @GetMapping("/download")
+    public ResponseEntity<?> downloadListForDay(@RequestParam(value = "day",required = false)
                                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
-        List<Broadcast> list = broadcastService.getSongs(Optional.ofNullable(day));
-        //List<SongEntry> songs = list.stream().map(broadcast -> broadcast.getSongEntries()).flatMap(se -> se.stream()).collect(Collectors.toList());
-        String result = service.search(list.get(0).getSongEntries());
-        ResponseEntity responseEntity = new ResponseEntity(result, HttpStatus.OK);
+        List<Broadcast> list = broadcastService.getFromSource(Optional.ofNullable(day));
+        List<SongEntry> songs = list.stream().map(broadcast -> broadcast.getSongEntries()).flatMap(se -> se.stream()).collect(Collectors.toList());
+        service.search(songs);
+        ResponseEntity responseEntity = new ResponseEntity(StateMarker.STARTED, HttpStatus.OK);
         return responseEntity;
     }
 }
