@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.scheduling.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @SpringBootApplication
 @ComponentScan
@@ -14,6 +15,7 @@ import org.springframework.scheduling.annotation.*;
 )
 @EnableAsync
 @EnableScheduling
+@EnableWebMvc
 public class Pr3SfApplication {
 
 	public static void main(String[] args) {

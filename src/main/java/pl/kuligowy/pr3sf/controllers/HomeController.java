@@ -38,10 +38,13 @@ public class HomeController {
     public ResponseEntity<?> getList(@RequestParam(value = "day",required = false)
                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
         ProgressMarker progress = new ProgressMarker();
-        progress.setMessage("Fetching collection of songs");
+        progress.setMessage("Fetching collection of songs, refresh in a minute...");
         progress.setStart(LocalDateTime.now());
         progress.setState(StateMarker.STARTED);
         List<Broadcast> list = broadcastService.getAllSongs(Optional.ofNullable(day));
+        if(list.isEmpty())
+            return new ResponseEntity<>(progress,HttpStatus.ACCEPTED);
+
         return new ResponseEntity<>(list,HttpStatus.OK);
     }
 
@@ -53,8 +56,6 @@ public class HomeController {
         return new ResponseEntity<>(list,HttpStatus.OK);
     }
 
-
-
     @GetMapping("/show")
     public ResponseEntity<?> showListForDay(@RequestParam(value = "day",required = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
@@ -64,5 +65,5 @@ public class HomeController {
         ResponseEntity responseEntity = new ResponseEntity(StateMarker.STARTED, HttpStatus.OK);
         return responseEntity;
     }
- 
+
 }
