@@ -9,7 +9,6 @@ import pl.kuligowy.pr3sf.services.*;
 
 import java.time.*;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.stream.*;
 
 
@@ -27,54 +26,43 @@ public class HomeController {
     BasicBroadcastService basicBroadcastService;
 
 
-
-    public ResponseEntity<?> getList(@RequestParam(value = "day",required = false)
+    @GetMapping("/broadcast")
+    public ResponseEntity<?> getBroadcasts(@RequestParam(value = "day",required = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
+        List<BroadcastDTO> list = broadcastService.getBroadcastList(Optional.ofNullable(day))
+               .stream().map(b-> new BroadcastDTO(b.getId(),b.getTitle(),b.getSongEntries().size())).collect(Collectors.toList());
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/songs")
+    public ResponseEntity<?> getList(@RequestParam(value = "day",required = false)
+                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
         ProgressMarker progress = new ProgressMarker();
         progress.setMessage("Fetching collection of songs");
         progress.setStart(LocalDateTime.now());
         progress.setState(StateMarker.STARTED);
-        return new ResponseEntity<>(progress,HttpStatus.ACCEPTED);
+        List<Broadcast> list = broadcastService.getAllSongs(Optional.ofNullable(day));
+        return new ResponseEntity<>(list,HttpStatus.OK);
+    }
+
+    @GetMapping("/broadcast/{broadcastId}/songs")
+    public ResponseEntity<?> getList(@PathVariable long broadcastId,
+                                     @RequestParam(value = "day",required = false)
+                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
+        List<Broadcast> list = broadcastService.getSongs(Optional.ofNullable(day),broadcastId);
+        return new ResponseEntity<>(list,HttpStatus.OK);
     }
 
 
-    @GetMapping("/async")
-    public Future<List<Broadcast>> asyncMethod(@RequestParam(value = "day",required = false)
-                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
-        return CompletableFuture.supplyAsync(() -> {
-            List<Broadcast> list =
-                broadcastService.getFromRepository(Optional.ofNullable(day));
-            if(list.isEmpty()){
-                return broadcastService.getFromSource(Optional.ofNullable(day));
-            }
-            return list;
-        });
-    }
-
-    @GetMapping("/broadcast")
-    public List<Broadcast> noasyncMethod(@RequestParam(value = "day",required = false)
-                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
-        List<Broadcast> list =  broadcastService.getFromRepository(Optional.ofNullable(day));
-        return list;
-    }
 
     @GetMapping("/show")
     public ResponseEntity<?> showListForDay(@RequestParam(value = "day",required = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
-        List<Broadcast> list = broadcastService.getFromRepository(Optional.ofNullable(day));
+        List<Broadcast> list = broadcastService.getAllSongs(Optional.ofNullable(day));
         List<SongEntry> songs = list.stream().map(broadcast -> broadcast.getSongEntries()).flatMap(se -> se.stream()).collect(Collectors.toList());
         songs.stream().parallel().forEach(rabbitService::sendMessage);
         ResponseEntity responseEntity = new ResponseEntity(StateMarker.STARTED, HttpStatus.OK);
         return responseEntity;
     }
-
-    @GetMapping("/download")
-    public ResponseEntity<?> downloadListForDay(@RequestParam(value = "day",required = false)
-                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
-        List<Broadcast> list = broadcastService.getFromSource(Optional.ofNullable(day));
-        List<SongEntry> songs = list.stream().map(broadcast -> broadcast.getSongEntries()).flatMap(se -> se.stream()).collect(Collectors.toList());
-        service.search(songs);
-        ResponseEntity responseEntity = new ResponseEntity(StateMarker.STARTED, HttpStatus.OK);
-        return responseEntity;
-    }
+ 
 }

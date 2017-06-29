@@ -19,4 +19,5 @@ public class CustomJsonLocalDateTimeDeserializer extends JsonDeserializer<LocalD
         LocalDateTime date = LocalDateTime.parse(p.getText(),sdf);
         return date;
     }
+
 }

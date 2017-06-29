@@ -14,4 +14,12 @@ public class BroadcastSpec {
         LocalDateTime dateY = LocalDateTime.of(day, LocalTime.MAX);
        return (root, query, cb) -> cb.between(root.get("start"),dateX,dateY);
     }
+    public static Specification getForDayAndBroadcast(LocalDate day,long broadcastId){
+        LocalDateTime dateX = LocalDateTime.of(day, LocalTime.MIN);
+        LocalDateTime dateY = LocalDateTime.of(day, LocalTime.MAX);
+       return (root, query, cb) -> cb.and(
+               cb.between(root.get("start"),dateX,dateY),
+               cb.equal(root.get("id"),broadcastId)
+       );
+    }
 }

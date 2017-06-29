@@ -41,7 +41,7 @@ public class YoutubeClientService {
                 .setApplicationName("pr3-song-finder").build();
     }
 
-    @Async
+    @Async("youtubeExecutor")
     public CompletableFuture<SongEntry> searchVideos(SongEntry songEntry){
         logger.info(String.format("Searching for: %s - %s",songEntry.getArtist(),songEntry.getTitle()));
         try {

@@ -1,6 +1,9 @@
 package pl.kuligowy.pr3sf.services;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.log4j.*;
+import org.hibernate.boot.jaxb.SourceType;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.*;
@@ -12,6 +15,10 @@ import pl.kuligowy.pr3sf.respositories.*;
 import java.time.*;
 import java.time.format.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created by coolig on 28.06.17.
@@ -23,21 +30,86 @@ public class BasicBroadcastService {
     private final RestTemplate rest = new RestTemplate();
     @Autowired
     private BroadcastRepository broadcastRepository;
+    @Autowired
+    private SongEntryRepository songEntryRepository;
     @Value("${pr3.rest.api.url}")
     private String URL;
     @Autowired
     private YoutubeClientService service;
 
+    @Async("commonExecutor")
+    public void updateDatabaseFromSource(Optional<LocalDate> date) {
+        logger.info("async updateDatabaseFromSource: Using REST API");
+        LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String dayString = day.format(dtf);
 
-    @Scheduled(cron = "* * * * * *")
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        HttpEntity request = new HttpEntity(headers);
+        ResponseEntity<Broadcast[]> response = rest.exchange(URL, HttpMethod.GET, request, Broadcast[].class, dayString);
+
+        List<Broadcast> fresh = Arrays.asList(response.getBody());
+        List<Broadcast> previous = broadcastRepository.findAll(BroadcastSpec.getForDay(day));
+        List<Broadcast> merged = mergeList(fresh,previous);
+        broadcastRepository.save(merged);
+        List<SongEntry> mergedWithLinks = findLinks(merged);
+        songEntryRepository.save(mergedWithLinks);
+    }
+
+    public List<SongEntry> findLinks(List<Broadcast> merged){
+        logger.info("Finding links...");
+            List<SongEntry> list = merged.stream()
+                    .map(b -> b.getSongEntries())
+                    .flatMap(s->s.stream())
+                    .filter(se-> (se.getLinks()==null || se.getLinks().isEmpty()))
+                    .map(se-> service.searchVideos(se))
+                    .map(cf -> cf.join())
+                    .collect(Collectors.toList());
+        return list;
+    }
+
+    public List<Broadcast> mergeList(List<Broadcast> fresh,List<Broadcast> previous){
+        logger.info("Merging lists...");
+        Set<Broadcast> ret = Sets.newHashSet();
+        for(Broadcast newBroadcast : fresh){
+            Optional<Broadcast> foundBroadcast = previous.stream().filter(b-> b.getComparator().compare(b,newBroadcast)==0).findFirst();
+
+            if(foundBroadcast.isPresent()){
+                for(SongEntry newSong: newBroadcast.getSongEntries()){
+                    Optional<SongEntry> foundSong = foundBroadcast.get()
+                            .getSongEntries()
+                            .stream().peek(s->System.out.println(s.getArtist()+" "+s.getTitle()+" "+s.getStart()))
+                            .filter(s-> s.getComparator().compare(s,newSong)==0)
+                            .findFirst();
+                    if(!foundSong.isPresent()){
+                        foundBroadcast.get().getSongEntries().add(newSong);
+                        System.out.println("Dodaje Piosenke "+newSong.getArtist()+" "+newSong.getTitle() +" do : "+foundBroadcast.get().getTitle());
+                        ret.add(foundBroadcast.get());
+                    }
+                }
+            }else{
+                System.out.println("Dodaje caly Broadcast "+newBroadcast.getTitle());
+                newBroadcast.getSongEntries().stream().forEach(s->System.out.println("\tSong "+s.getTitle()+" br: "+s.getBroadcast()));
+                ret.add(newBroadcast);
+            }
+        }
+        List l =  Lists.newArrayList();
+        l.addAll(ret);
+        return l;
+    }
+
+    //@Scheduled(cron = "0 10 * * * *")
     public void downloadBroadcastCollection(){
         LocalDate day  = LocalDate.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String dayString = day.format(dtf);
         logger.info("Downloading songs...");
-        ResponseEntity<Broadcast[]> response = rest.getForEntity(URL, Broadcast[].class,dayString);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type","application/json");
+        HttpEntity request = new HttpEntity(headers);
+        ResponseEntity<Broadcast[]> response = rest.exchange(URL, HttpMethod.GET,request,Broadcast[].class,dayString);
         List<Broadcast> result = Arrays.asList(response.getBody());
-
         broadcastRepository.save(result);
 
 //        List<SongEntry> songs = result.stream().map(broadcast -> broadcast.getSongEntries()).flatMap(list->list.stream())
