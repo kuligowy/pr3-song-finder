@@ -14,12 +14,12 @@ public class YoutubeFinderService {
 
     Logger logger = Logger.getLogger(this.getClass().getName());
 
-    private YoutubeClientService youtubeService;
+    private YoutubeService youtubeService;
     private SongEntryRepository songEntryRepository;
     private RabbitService rabbitService;
 
     @Autowired
-    YoutubeFinderService(YoutubeClientService youtubeClientService,SongEntryRepository repository,RabbitService rabbit){
+    YoutubeFinderService(YoutubeService youtubeClientService,SongEntryRepository repository,RabbitService rabbit){
         this.youtubeService = youtubeClientService;
         this.songEntryRepository = repository;
         this.rabbitService = rabbit;

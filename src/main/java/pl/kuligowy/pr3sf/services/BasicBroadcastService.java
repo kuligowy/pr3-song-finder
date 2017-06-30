@@ -3,8 +3,8 @@ package pl.kuligowy.pr3sf.services;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.log4j.*;
-import org.hibernate.boot.jaxb.SourceType;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.stereotype.*;
@@ -15,9 +15,6 @@ import pl.kuligowy.pr3sf.respositories.*;
 import java.time.*;
 import java.time.format.*;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -28,17 +25,21 @@ public class BasicBroadcastService {
 
     Logger logger = Logger.getLogger(this.getClass().getName());
     private final RestTemplate rest = new RestTemplate();
-    @Autowired
-    private BroadcastRepository broadcastRepository;
-    @Autowired
-    private SongEntryRepository songEntryRepository;
+    private final BroadcastRepository broadcastRepository;
+    private final SongEntryRepository songEntryRepository;
     @Value("${pr3.rest.api.url}")
     private String URL;
+    private final YoutubeService service;
+
     @Autowired
-    private YoutubeClientService service;
+    public BasicBroadcastService(BroadcastRepository broadcastRepository, SongEntryRepository songEntryRepository, YoutubeService service) {
+        this.broadcastRepository = broadcastRepository;
+        this.songEntryRepository = songEntryRepository;
+        this.service = service;
+    }
 
     @Async("commonExecutor")
-    public void updateDatabaseFromSource(Optional<LocalDate> date) {
+    void updateDatabaseFromSource(Optional<LocalDate> date) {
         logger.info("async updateDatabaseFromSource: Using REST API");
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -50,14 +51,14 @@ public class BasicBroadcastService {
         ResponseEntity<Broadcast[]> response = rest.exchange(URL, HttpMethod.GET, request, Broadcast[].class, dayString);
 
         List<Broadcast> fresh = Arrays.asList(response.getBody());
-        List<Broadcast> previous = broadcastRepository.findAll(BroadcastSpec.getForDay(day));
+        List<Broadcast> previous = broadcastRepository.findAll(BroadcastSpec.getForDay(day), EntityGraph.EntityGraphType.LOAD,"Broadcast.songs");
         List<Broadcast> merged = mergeList(fresh,previous);
         broadcastRepository.save(merged);
         List<SongEntry> mergedWithLinks = findLinks(merged);
         songEntryRepository.save(mergedWithLinks);
     }
 
-    public List<SongEntry> findLinks(List<Broadcast> merged){
+    private List<SongEntry> findLinks(List<Broadcast> merged){
         logger.info("Finding links...");
             List<SongEntry> list = merged.stream()
                     .map(b -> b.getSongEntries())
@@ -69,7 +70,7 @@ public class BasicBroadcastService {
         return list;
     }
 
-    public List<Broadcast> mergeList(List<Broadcast> fresh,List<Broadcast> previous){
+    private List<Broadcast> mergeList(List<Broadcast> fresh, List<Broadcast> previous){
         logger.info("Merging lists...");
         Set<Broadcast> ret = Sets.newHashSet();
         for(Broadcast newBroadcast : fresh){

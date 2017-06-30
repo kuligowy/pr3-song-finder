@@ -5,8 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import pl.kuligowy.pr3sf.respositories.CustomRepositoryImpl;
 
 @SpringBootApplication
 @ComponentScan
@@ -16,6 +18,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableAsync
 @EnableScheduling
 @EnableWebMvc
+//@EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class,basePackages = "pl.kuligowy.pr3sf.respositories.*")
+@EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class)
 public class Pr3SfApplication {
 
 	public static void main(String[] args) {

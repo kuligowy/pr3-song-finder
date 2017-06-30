@@ -1,29 +1,16 @@
 package pl.kuligowy.pr3sf.services;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pl.kuligowy.pr3sf.domain.Broadcast;
-import pl.kuligowy.pr3sf.domain.SongEntry;
 import pl.kuligowy.pr3sf.respositories.BroadcastRepository;
 import pl.kuligowy.pr3sf.respositories.BroadcastSpec;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 public class BroadcastService {

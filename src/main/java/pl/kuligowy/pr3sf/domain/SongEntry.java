@@ -12,8 +12,7 @@ import java.util.*;
 
 @Entity
 @Table(name="song_entry")
-@Getter
-@Setter
+
 @ToString
 @EqualsAndHashCode
 public class SongEntry implements Serializable{
@@ -22,22 +21,14 @@ public class SongEntry implements Serializable{
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
     private Long id;
-    @JsonProperty("Title")
     @Column(name="title")
     private String title;
-    @JsonProperty("AlbumTitle")
     @Column(name="album_title")
     private String albumTitle;
-    @JsonProperty("Duration")
     @Column(name="duration")
     private Long duration;
-    @JsonProperty("Start")
-    @JsonFormat(pattern = "E, d MMM yyyy HH:mm:ss")
-    @JsonDeserialize(using = CustomJsonLocalDateTimeDeserializer.class)
-    @JsonSerialize(using=CustomJsonLocalDateTimeSerializer.class)
     @Column(name="start")
     private LocalDateTime start;
-    @JsonProperty("Artist")
     @Column(name="artist")
     private String artist;
     @JoinColumn(name = "broadcast",referencedColumnName = "id")
@@ -62,6 +53,83 @@ public class SongEntry implements Serializable{
     public SongEntry(String artist, String title){
         this.title = title;
         this.artist = artist;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @JsonProperty("title")
+    public String getTitle() {
+        return title;
+    }
+
+    @JsonProperty("Title")
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @JsonProperty("albumTitle")
+    public String getAlbumTitle() {
+        return albumTitle;
+    }
+
+    @JsonProperty("AlbumTitle")
+    public void setAlbumTitle(String albumTitle) {
+        this.albumTitle = albumTitle;
+    }
+
+    @JsonProperty("duration")
+    public Long getDuration() {
+        return duration;
+    }
+
+    @JsonProperty("Duration")
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
+
+    @JsonSerialize(using=CustomJsonLocalDateTimeSerializer.class)
+    @JsonProperty("start")
+    public LocalDateTime getStart() {
+        return start;
+    }
+
+    @JsonProperty("Start")
+    @JsonFormat(pattern = "E, d MMM yyyy HH:mm:ss")
+    @JsonDeserialize(using = CustomJsonLocalDateTimeDeserializer.class)
+    public void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    @JsonProperty("artist")
+    public String getArtist() {
+        return artist;
+    }
+
+    @JsonProperty("Artist")
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public Broadcast getBroadcast() {
+        return broadcast;
+    }
+
+    public void setBroadcast(Broadcast broadcast) {
+        this.broadcast = broadcast;
+    }
+
+    public List<YoutubeResult> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<YoutubeResult> links) {
+        this.links = links;
     }
 
     public Comparator getComparator() {

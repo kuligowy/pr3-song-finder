@@ -27,6 +27,7 @@ public class YoutubeResult implements Serializable{
 
     }
 
+
     public YoutubeResult(String id) {
         this.videoId = id;
     }

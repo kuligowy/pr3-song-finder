@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import pl.kuligowy.pr3sf.domain.Broadcast;
 import pl.kuligowy.pr3sf.domain.SongEntry;
-import pl.kuligowy.pr3sf.respositories.BroadcastRepository;
+import pl.kuligowy.pr3sf.respositories.Repository;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -21,7 +21,7 @@ public class BroadcastRepositoryTest {
 
 
     @Autowired
-    private BroadcastRepository repository;
+    private Repository repository;
 
     @Test
     public void saveBroadcast(){

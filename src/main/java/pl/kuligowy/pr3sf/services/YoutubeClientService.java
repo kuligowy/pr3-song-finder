@@ -12,6 +12,7 @@ import com.google.api.services.youtube.model.Thumbnail;
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.kuligowy.pr3sf.domain.SongEntry;
@@ -24,7 +25,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-public class YoutubeClientService {
+@Profile("prod")
+public class YoutubeClientService implements YoutubeService{
 
     Logger logger = Logger.getLogger(this.getClass().getName());
     private final YouTube youtube;
