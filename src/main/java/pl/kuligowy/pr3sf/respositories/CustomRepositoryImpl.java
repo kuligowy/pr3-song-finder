@@ -28,33 +28,33 @@ public class CustomRepositoryImpl<T,ID extends Serializable> extends SimpleJpaRe
         // Keep the EntityManager around to used from the newly introduced methods.
         this.em = entityManager;
     }
-
-    public CustomRepositoryImpl(Class<T> domainClass, EntityManager em) {
-        super(domainClass, em);
-        this.em = em;
-    }
-    @Override
+//
+//    public CustomRepositoryImpl(Class<T> domainClass, EntityManager em) {
+//        super(domainClass, em);
+//        this.em = em;
+//    }
+//    @Override
     public List<T> findAll(Specification<T> spec, EntityGraph.EntityGraphType entityGraphType, String entityGraphName) {
         TypedQuery<T> query = getQuery(spec,(Sort)null);
         query.setHint(entityGraphType.getKey(),em.getEntityGraph(entityGraphName));
         return query.getResultList();
     }
 
-    @Override
+//    @Override
     public Page<T> findAll(Specification<T> spec, Pageable pageable, EntityGraph.EntityGraphType entityGraphType, String entityGraphName) {
         TypedQuery<T> query = getQuery(spec, pageable.getSort());
         query.setHint(entityGraphType.getKey(), em.getEntityGraph(entityGraphName));
         return readPage(query, getDomainClass(), pageable, spec);
     }
 
-    @Override
+//    @Override
     public List<T> findAll(Specification<T> spec, Sort sort, EntityGraph.EntityGraphType entityGraphType, String entityGraphName) {
         TypedQuery<T> query = getQuery(spec, sort);
         query.setHint(entityGraphType.getKey(), em.getEntityGraph(entityGraphName));
         return query.getResultList();
     }
 
-    @Override
+//    @Override
     public T findOne(Specification<T> spec, EntityGraph.EntityGraphType entityGraphType, String entityGraphName) {
         TypedQuery<T> query = getQuery(spec, (Sort) null);
         query.setHint(entityGraphType.getKey(), em.getEntityGraph(entityGraphName));

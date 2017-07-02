@@ -2,5 +2,5 @@ package pl.kuligowy.pr3sf.domain;
 
 public enum StateMarker {
 
-    STARTED,FINISHED
+    STARTED,FINISHED,FETCHING
 }

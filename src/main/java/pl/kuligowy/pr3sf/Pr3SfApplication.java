@@ -3,22 +3,17 @@ package pl.kuligowy.pr3sf;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
 import org.springframework.boot.autoconfigure.domain.*;
-import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.convert.threeten.*;
-import org.springframework.data.jpa.repository.config.*;
 import org.springframework.scheduling.annotation.*;
-import pl.kuligowy.pr3sf.respositories.*;
 
 @SpringBootApplication
-@ComponentScan
+//@ComponentScan
 @EntityScan(
 		basePackageClasses = { Pr3SfApplication.class, Jsr310JpaConverters.class }
 )
 @EnableAsync
-@EnableScheduling
 //@EnableWebMvc
 //@EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class,basePackages = "pl.kuligowy.pr3sf.respositories.*")
-@EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class)
 public class Pr3SfApplication {
 
 	public static void main(String[] args) {

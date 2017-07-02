@@ -3,6 +3,7 @@ package pl.kuligowy.pr3sf.services;
 import org.apache.log4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.client.*;
 import pl.kuligowy.pr3sf.domain.*;
@@ -33,8 +34,13 @@ public class BroadcastService {
     public List<Broadcast> getAllSongs(Optional<LocalDate> date,Long broadcastId, Pageable page){
         logger.info("Using DATABASE");
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
-        List<Broadcast> list= broadcastRepository.findAll(BroadcastSpec.getForDayAndBroadcast(day,broadcastId),page).getContent();
+        List<Broadcast> list= broadcastRepository.findAll(
+                BroadcastSpec.getForDayAndBroadcast(day,broadcastId),
+                page,
+                EntityGraph.EntityGraphType.FETCH,"Broadcast.songs").getContent();
+        //
         service.updateDatabaseFromSource(date);
+        //
         return list;
     }
 
