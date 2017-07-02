@@ -31,6 +31,8 @@ public class BasicBroadcastService {
     private String URL;
     private final YoutubeService service;
 
+    private boolean isStarted = false;
+
     @Autowired
     public BasicBroadcastService(BroadcastRepository broadcastRepository, SongEntryRepository songEntryRepository, YoutubeService service) {
         this.broadcastRepository = broadcastRepository;
@@ -80,7 +82,7 @@ public class BasicBroadcastService {
                 for(SongEntry newSong: newBroadcast.getSongEntries()){
                     Optional<SongEntry> foundSong = foundBroadcast.get()
                             .getSongEntries()
-                            .stream().peek(s->System.out.println(s.getArtist()+" "+s.getTitle()+" "+s.getStart()))
+                            .stream()//.peek(s->System.out.println(s.getArtist()+" "+s.getTitle()+" "+s.getStart()))
                             .filter(s-> s.getComparator().compare(s,newSong)==0)
                             .findFirst();
                     if(!foundSong.isPresent()){
@@ -95,6 +97,7 @@ public class BasicBroadcastService {
                 ret.add(newBroadcast);
             }
         }
+        logger.info("list merging completed");
         List l =  Lists.newArrayList();
         l.addAll(ret);
         return l;

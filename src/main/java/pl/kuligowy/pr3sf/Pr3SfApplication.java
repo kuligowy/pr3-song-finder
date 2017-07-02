@@ -1,14 +1,13 @@
 package pl.kuligowy.pr3sf;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.boot.*;
+import org.springframework.boot.autoconfigure.*;
+import org.springframework.boot.autoconfigure.domain.*;
+import org.springframework.context.annotation.*;
+import org.springframework.data.jpa.convert.threeten.*;
+import org.springframework.data.jpa.repository.config.*;
 import org.springframework.scheduling.annotation.*;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import pl.kuligowy.pr3sf.respositories.CustomRepositoryImpl;
+import pl.kuligowy.pr3sf.respositories.*;
 
 @SpringBootApplication
 @ComponentScan
@@ -17,7 +16,7 @@ import pl.kuligowy.pr3sf.respositories.CustomRepositoryImpl;
 )
 @EnableAsync
 @EnableScheduling
-@EnableWebMvc
+//@EnableWebMvc
 //@EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class,basePackages = "pl.kuligowy.pr3sf.respositories.*")
 @EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class)
 public class Pr3SfApplication {

@@ -12,7 +12,7 @@ class SongCard extends React.Component {
 
     generateLinks(){
       return this.props.songEntry.links.map( (link)=>
-                <SongLink key={link.videoId} link = {link.link}></SongLink>
+                <SongLink key={link.videoId} videoId = {link.videoId}></SongLink>
         )
     }
 
@@ -24,7 +24,9 @@ class SongCard extends React.Component {
                     {this.props.songEntry.artist} -    {this.props.songEntry.title}
                 </Col>
                 <Col md={8}>
-                    {this.generateLinks()}
+                    <ul>
+                        {this.generateLinks()}
+                    </ul>
                 </Col>
             </Row>
             )
