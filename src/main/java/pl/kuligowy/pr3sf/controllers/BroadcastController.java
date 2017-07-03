@@ -20,13 +20,15 @@ public class BroadcastController {
 //    @Autowired
 //    YoutubeFinderService service;
     BroadcastService broadcastService;
+    SongEntryService songService;
 //    @Autowired
 //    RabbitService rabbitService;
 //    @Autowired
 //    BasicBroadcastService basicBroadcastService;
     @Autowired
-    public BroadcastController(BroadcastService broadcastService){
+    public BroadcastController(BroadcastService broadcastService,SongEntryService songEntryService){
         this.broadcastService = broadcastService;
+        this.songService = songEntryService;
     }
 
     @GetMapping
@@ -36,23 +38,26 @@ public class BroadcastController {
 
     @GetMapping("/broadcast")
     public ResponseEntity<?> getBroadcasts(@RequestParam(value = "day",required = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
-        List<BroadcastDTO> list = broadcastService.getBroadcastList(Optional.ofNullable(day))
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,Sort sort){
+        List<BroadcastDTO> list = broadcastService.getBroadcastList(Optional.ofNullable(day),sort)
 //        List<Broadcast> list = broadcastService.getBroadcastList(Optional.ofNullable(day));
-               .stream().map(b-> new BroadcastDTO(b.getId(),b.getTitle(),b.getSongEntries().size())).collect(Collectors.toList());
+               .stream().map(b-> new BroadcastDTO(b.getId(),b.getTitle(),b.getSongEntries().size(),b.getStart(),b.getStop()))
+                .collect(Collectors.toList());
+
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/broadcast/{broadcastId}/song")
+    @GetMapping("/broadcast/{broadcastId}")
     public ResponseEntity<?> getList(    Pageable page,
         @RequestParam(value = "day",required = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
     @PathVariable Long broadcastId){
         ProgressMarker progress = ProgressMarker.STARTED();
-        List<Broadcast> list = broadcastService.getAllSongs(Optional.ofNullable(day),broadcastId,page);
-//        if(list.isEmpty())
+//        List<Broadcast> list = broadcastService.getAllSongs();
+        Page<SongEntry> ret = songService.getSongs(broadcastId,Optional.ofNullable(day),page);
+        //        if(list.isEmpty())
 //            return new ResponseEntity<>(progress,HttpStatus.ACCEPTED);
-        return new ResponseEntity<>(list,HttpStatus.OK);
+        return new ResponseEntity<>(ret,HttpStatus.OK);
     }
 
 

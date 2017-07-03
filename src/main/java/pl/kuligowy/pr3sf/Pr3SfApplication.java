@@ -1,5 +1,6 @@
 package pl.kuligowy.pr3sf;
 
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
 import org.springframework.boot.autoconfigure.domain.*;
@@ -9,7 +10,7 @@ import org.springframework.scheduling.annotation.*;
 @SpringBootApplication
 //@ComponentScan
 @EntityScan(
-		basePackageClasses = { Pr3SfApplication.class, Jsr310JpaConverters.class }
+		basePackageClasses = { Pr3SfApplication.class, Jsr310JpaConverters.class,JSR310Module.class }
 )
 @EnableAsync
 //@EnableWebMvc

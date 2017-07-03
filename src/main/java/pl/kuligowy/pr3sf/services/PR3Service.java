@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * Created by coolig on 28.06.17.
  */
 @Component
-public class BasicBroadcastService {
+public class PR3Service {
 
     Logger logger = Logger.getLogger(this.getClass().getName());
     private final RestTemplate rest = new RestTemplate();
@@ -31,10 +31,10 @@ public class BasicBroadcastService {
     private String URL;
     private final YoutubeService service;
 
-    private boolean isStarted = false;
-
     @Autowired
-    public BasicBroadcastService(BroadcastRepository broadcastRepository, SongEntryRepository songEntryRepository, YoutubeService service) {
+    public PR3Service(BroadcastRepository broadcastRepository,
+                      SongEntryRepository songEntryRepository,
+                      YoutubeService service) {
         this.broadcastRepository = broadcastRepository;
         this.songEntryRepository = songEntryRepository;
         this.service = service;
@@ -43,6 +43,13 @@ public class BasicBroadcastService {
     @Async("commonExecutor")
     void updateDatabaseFromSource(Optional<LocalDate> date) {
         logger.info("async updateDatabaseFromSource: Using REST API");
+        List<Broadcast> merged = downloadNewEntries(date);
+        List<Broadcast> savedMerged = broadcastRepository.save(merged);
+        List<SongEntry> mergedWithLinks = findLinks(savedMerged);
+        songEntryRepository.save(mergedWithLinks);
+    }
+
+    private List<Broadcast> downloadNewEntries(Optional<LocalDate> date) {
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String dayString = day.format(dtf);
@@ -55,9 +62,7 @@ public class BasicBroadcastService {
         List<Broadcast> fresh = Arrays.asList(response.getBody());
         List<Broadcast> previous = broadcastRepository.findAll(BroadcastSpec.getForDay(day), EntityGraph.EntityGraphType.LOAD,"Broadcast.songs");
         List<Broadcast> merged = mergeList(fresh,previous);
-        broadcastRepository.save(merged);
-        List<SongEntry> mergedWithLinks = findLinks(merged);
-        songEntryRepository.save(mergedWithLinks);
+        return merged;
     }
 
     private List<SongEntry> findLinks(List<Broadcast> merged){

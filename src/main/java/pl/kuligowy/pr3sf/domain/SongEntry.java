@@ -12,7 +12,6 @@ import java.util.*;
 
 @Entity
 @Table(name="song_entry")
-
 @ToString
 @EqualsAndHashCode
 public class SongEntry implements Serializable{

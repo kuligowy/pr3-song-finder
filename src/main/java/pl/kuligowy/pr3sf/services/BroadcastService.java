@@ -17,15 +17,15 @@ public class BroadcastService {
     Logger logger = Logger.getLogger(this.getClass().getName());
 
     private BroadcastRepository broadcastRepository;
-    private BasicBroadcastService service;
+    private PR3Service service;
     private String URL;
     private final RestTemplate rest = new RestTemplate();
 
     @Autowired
     public BroadcastService(
-            BasicBroadcastService service,
+            PR3Service service,
             BroadcastRepository broadcastRepository,
-            @Value("${pr3.rest.api.url}") String URL ) {
+            @Value("${pr3.rest.api.url}") String URL) {
         this.broadcastRepository = broadcastRepository;
         this.service = service;
         this.URL = URL;
@@ -34,12 +34,12 @@ public class BroadcastService {
     public List<Broadcast> getAllSongs(Optional<LocalDate> date,Long broadcastId, Pageable page){
         logger.info("Using DATABASE");
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
-        List<Broadcast> list= broadcastRepository.findAll(
+        List<Broadcast> list=
+                broadcastRepository.findAll(
                 BroadcastSpec.getForDayAndBroadcast(day,broadcastId),
                 page,
                 EntityGraph.EntityGraphType.FETCH,"Broadcast.songs").getContent();
         //
-        service.updateDatabaseFromSource(date);
         //
         return list;
     }
@@ -47,13 +47,16 @@ public class BroadcastService {
     public List<Broadcast> getSongs(Optional<LocalDate> date,long broadcastId){
         logger.info("Using DATABASE");
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
-        List<Broadcast> list= broadcastRepository.findAll(BroadcastSpec.getForDayAndBroadcast(day,broadcastId));
+        List<Broadcast> list=
+                broadcastRepository.findAll(BroadcastSpec.getForDayAndBroadcast(day,broadcastId));
         return list;
     }
 
-    public List<Broadcast> getBroadcastList(Optional<LocalDate> date){
+    public List<Broadcast> getBroadcastList(Optional<LocalDate> date,Sort sort){
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
-        List<Broadcast> list= broadcastRepository.findAll(BroadcastSpec.getForDay(day));
+        List<Broadcast> list=
+                broadcastRepository.findAll(BroadcastSpec.getForDay(day),sort);
+        service.updateDatabaseFromSource(date);
         return list;
     }
 

@@ -12,7 +12,7 @@ import java.util.*;
  * Created by mtkl on 2017-06-30.
  */
 @NoRepositoryBean
-public interface CustomRepository<T, ID extends Serializable> extends JpaRepository<T, ID> , JpaSpecificationExecutor<T> {
+public interface MyBaseRepository<T, ID extends Serializable> extends JpaRepository<T, ID> , JpaSpecificationExecutor<T> {
 
     List<T> findAll(Specification<T> spec, EntityGraph.EntityGraphType entityGraphType, String entityGraphName);
 

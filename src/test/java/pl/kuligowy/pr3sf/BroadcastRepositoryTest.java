@@ -5,8 +5,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import pl.kuligowy.pr3sf.domain.Broadcast;
 import pl.kuligowy.pr3sf.domain.SongEntry;
 import pl.kuligowy.pr3sf.respositories.*;
@@ -15,7 +17,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest
 public class BroadcastRepositoryTest {
 
@@ -38,6 +40,7 @@ public class BroadcastRepositoryTest {
         Broadcast saved = repository.save(broadcast);
 
         Assert.assertNotNull(saved.getSongEntries());
+        Assert.assertNotNull(saved.getId());
         Assert.assertNotNull(saved.getSongEntries().get(0));
         Assert.assertNotNull(saved.getSongEntries().get(0).getArtist());
         Assert.assertNotNull(saved.getSongEntries().get(0).getTitle());
@@ -49,10 +52,10 @@ public class BroadcastRepositoryTest {
         LocalDateTime dateY = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.DAYS);
         System.out.println(dateX);
         System.out.println(dateY);
-        long count = repository.count((root, query, cb) -> {
-            return cb.between(root.get("start"),dateX,dateY);
-        });
-        Assert.assertEquals(count,0);
+//        long count = repository.count((root, query, cb) -> {
+//            return cb.between(root.get("start"),dateX,dateY);
+//        });
+//        Assert.assertEquals(count,0);
     }
 
 }

@@ -21,7 +21,7 @@ public class SongEntryController {
     SongEntryService service;
 
     @GetMapping("/{broadcastId}")
-    public List<SongEntry> getAllSongs(   Pageable page,
+    public Page<SongEntry> getAllSongs(   Pageable page,
                                           @RequestParam(value = "day",required = false)
                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
                                           @PathVariable Long broadcastId){
@@ -29,7 +29,7 @@ public class SongEntryController {
     }
 
     @GetMapping()
-    public List<SongEntry> getAllSongs(   Pageable page,
+    public Page<SongEntry> getAllSongs(   Pageable page,
                                           @RequestParam(value = "day",required = false)
                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
         return service.getSongs(Optional.ofNullable(day),page);

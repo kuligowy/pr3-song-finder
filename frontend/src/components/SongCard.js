@@ -11,9 +11,11 @@ class SongCard extends React.Component {
     }
 
     generateLinks(){
-      return this.props.songEntry.links.map( (link)=>
-                <SongLink key={link.videoId} videoId = {link.videoId}></SongLink>
-        )
+                var link = this.props.songs.content.links[0];
+                return <SongLink key={link.videoId} videoId = {link.videoId}></SongLink>
+        // return this.props.songs.content.links.map( (link)=>
+        //         <SongLink key={link.videoId} videoId = {link.videoId}></SongLink>
+        // )
     }
 
     render(){

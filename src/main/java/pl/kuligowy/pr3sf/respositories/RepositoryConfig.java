@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.config.*;
  * Created by coolig on 02.07.17.
  */
 @Configuration
-@EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class)
+@EnableJpaRepositories(repositoryBaseClass = MyBaseRepositoryImpl.class)
 public class RepositoryConfig {
 }

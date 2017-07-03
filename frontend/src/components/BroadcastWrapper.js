@@ -11,8 +11,12 @@ class BroadcastWrapper extends React.Component {
     }
 
     render(){
+        if(!this.props.b)
+            return <div></div>
+
         return <div>
-            {this.props.broadcasts.map(b => (<BroadcastPanel key={b.id} broadcast={b} ></BroadcastPanel>))}
+
+            (<BroadcastPanel key={this.props.b.id} broadcast={this.props.b} ></BroadcastPanel>)
 
         </div>
     }

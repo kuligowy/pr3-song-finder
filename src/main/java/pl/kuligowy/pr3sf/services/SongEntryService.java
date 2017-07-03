@@ -1,5 +1,6 @@
 package pl.kuligowy.pr3sf.services;
 
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
@@ -18,13 +19,18 @@ public class SongEntryService {
     @Autowired
     SongEntryRepository repository;
 
-    public List<SongEntry> getSongs(Long broadcastId, Optional<LocalDate> date, Pageable page){
+//    public List<SongEntry> getSongs(Long broadcastId, Optional<LocalDate> date, Pageable page){
+//        LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
+//        return repository.findAll(SongEntrySpec.getForDayAndBroadcast(day,broadcastId),page).getContent();
+//    }
+    public Page<SongEntry> getSongs(Long broadcastId, Optional<LocalDate> date, Pageable page){
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
-        return repository.findAll(SongEntrySpec.getForDayAndBroadcast(day,broadcastId),page).getContent();
+        return repository.findAll(SongEntrySpec.getForDayAndBroadcast(day,broadcastId),page);
     }
-    public List<SongEntry> getSongs(Optional<LocalDate> date, Pageable page){
+    public Page<SongEntry> getSongs(Optional<LocalDate> date, Pageable page){
         LocalDate day = date.isPresent() ? date.get() : LocalDate.now();
-        return repository.findAll(SongEntrySpec.getForDay(day),page).getContent();
+        return repository.findAll(SongEntrySpec.getForDay(day),page);
+
     }
 
 }
